@@ -18,7 +18,7 @@ def main():
 
     # Check command-line arguments
     if len(sys.argv) < 2 or len(sys.argv) > 3:
-        sys.exit("Usage: python word-search.py theme")
+        sys.exit("Usage: python word-search.py theme\n        -> themes: office, potter, lotr\n           - OR -\n       python word-search.py theme filename\n        -> writes puzzle to .txt file instead of terminal")
     else:
         theme = sys.argv[1].lower()
         if theme == "office" or theme == "parks" or theme == "potter" or theme == "lotr":
