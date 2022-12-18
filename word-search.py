@@ -1,16 +1,18 @@
 import sys
 import random
-import argparse
 
 
 # Words to find
-THE_OFFICE = ["ANDY", "ANGELA", "CREED", "DARRYL", "DWIGHT", "JIM", "KELLY", "KEVIN", "MEREDITH", "MICHAEL", "OSCAR", "PAM", "PHYLLIS", "RYAN", "STANLEY", "TOBY"]
-PARKS = ["ANDY", "ANN", "APRIL", "BEN", "CHRIS", "DONNA", "EAGLETON", "GARRY", "JERRY", "LARRY", "LESLIE", "LILSEBASTIAN", "MOUSERAT", "PAWNEE", "RON", "TOM"]
-HARRY_POTTER = ["DRACO", "DUMBLEDORE", "GRYFFINDOR", "HAGRID", "HARRY", "HERMIONE", "HOGWARTS", "HUFFLEPUFF", "MCGONAGALL", "NEVILLE", "RAVENCLAW", "RON", "SEVERUS", "SIRIUS", "SLYTHERIN", "VOLDEMORT"]
-LOTR = ["ARAGORN", "BILBO", "BOROMIR", "FRODO", "GANDALF", "GIMLI", "GOLLUM", "LEGOLAS", "MERRY", "MIDDLEEARTH", "MORDOR", "PIPPIN", "SAMWISE", "SAURON", "SHIRE", "SMEAGOL"]
+THE_OFFICE = ["MICHAEL", "DWIGHT", "JIM", "PAM", "ANDY", "STANLEY", "PHYLLIS", "ANGELA", "OSCAR", "KEVIN", "MEREDITH", "CREED", "RYAN", "KELLY", "TOBY", "DARRYL",
+                "HOLLY", "JAN", "ROY", "DAVID", "CHARLES", "GABE", "ERIN", "MOSE", "PETE", "CLARK", "BOBVANCE", "VIKRAM", "SCARN", "PAPER", "DUNDER", "MIFFLIN"]
+HARRY_POTTER = ["HARRY", "RON", "HERMIONE", "HAGRID", "DRACO", "NEVILLE", "DUMBLEDORE", "MCGONAGALL", "SEVERUS", "VOLDEMORT", "SIRIUS", "HOGWARTS", "GRYFFINDOR", "HUFFLEPUFF", "RAVENCLAW", "SLYTHERIN",
+                "PADFOOT", "GINNY", "DOBBY", "TRELAWNEY", "FLITWICK", "UMBRIDGE", "SPROUT", "POMFREY", "DOBBY", "LUNA", "MYRTLE", "FILCH", "SNITCH", "WIZARD", "WITCH", "MAGIC"]
+LOTR = ["FRODO", "SAMWISE", "BILBO", "MERRY", "PIPPIN", "GANDALF", "ARAGORN", "LEGOLAS", "GIMLI", "BOROMIR", "FARAMIR", "GOLLUM", "SMEAGOL", "SAURON", "SARUMAN", "STRIDER",
+        "MIDDLEEARTH", "SHIRE", "MORDOR", "RIVENDELL", "GONDOR", "ROHAN", "MORIA", "FANGORN", "HUMAN", "HOBBIT", "ELF", "DWARF", "ORC", "GOBLIN", "WIZARD", "RING"]
 
 # Grid size settings
 DIFFICULTY_GRID_SIZE = {"easy": 20, "medium": 30, "hard": 40}
+DIFFICULTY_WORD_AMOUNT = {"easy": 16, "medium": 24, "hard": 32}
 
 def main():
 
@@ -22,27 +24,29 @@ def main():
         if theme == "office" or theme == "parks" or theme == "potter" or theme == "lotr":
             words = get_word_list(theme)
         else:
-            sys.exit("Available themes: office, parks, potter, lotr")
+            sys.exit("Available themes: office, potter, lotr")
         if len(sys.argv) == 3:
             txtFile = open(f"{sys.argv[2]}.txt", "w")
     
     # Get difficulty from user
-    size = get_difficulty()
+    difficulty = get_difficulty()
+    size = DIFFICULTY_GRID_SIZE[difficulty]
+    amount = DIFFICULTY_WORD_AMOUNT[difficulty]
 
     # Create a grid of specific size based on difficulty
     grid = create_grid(size)
 
     # Hide words inside grid
-    grid = hide_words(grid, size, words)
+    grid = hide_words(grid, size, words, amount)
 
     # Randomize all other letters in grid
     grid = randomize_grid(grid, size)
 
     # Either print puzzle in terminal or write to text file, depending on command-line arguments
     if len(sys.argv) != 3:
-        print_puzzle(grid, size, words)
+        print_puzzle(grid, size, words, amount)
     else:
-        write_puzzle(grid, size, words, txtFile)
+        write_puzzle(grid, size, words, amount, txtFile)
 
 
 def get_word_list(theme):
@@ -52,9 +56,6 @@ def get_word_list(theme):
     if theme == "office":
         for i in range(len(THE_OFFICE)):
             words.append(THE_OFFICE[i])
-    elif theme == "parks":
-        for i in range(len(PARKS)):
-            words.append(PARKS[i])
     elif theme == "potter":
         for i in range(len(HARRY_POTTER)):
             words.append(HARRY_POTTER[i])
@@ -79,7 +80,7 @@ def get_difficulty():
             difficulty = "hard"
             break
     
-    return DIFFICULTY_GRID_SIZE[difficulty]
+    return difficulty
 
 
 def create_grid(size):
@@ -97,7 +98,7 @@ def create_grid(size):
     return grid
 
 
-def hide_words(grid, size, words):
+def hide_words(grid, size, words, amount):
 
     # Array of factors for each direction
     factor = [[0, 1], [0, -1], [1, 0], [-1, 0], [-1, 1], [1, 1], [-1, -1], [1, -1]]
@@ -107,7 +108,7 @@ def hide_words(grid, size, words):
 
     # Generate random direction for each word
     i = 0
-    while i < len(words):
+    while i < amount:
         word = words[i]
         direction = random.randint(0, 7)
         # Horizontal left-to-right
@@ -179,7 +180,7 @@ def randomize_grid(grid, size):
     return grid
 
 
-def print_puzzle(grid, size, words):
+def print_puzzle(grid, size, words, amount):
 
     # Print board
     for i in range(size):
@@ -191,7 +192,7 @@ def print_puzzle(grid, size, words):
     # Print word list
     spacing = 15
     count = 0
-    for i in range(len(words)):
+    for i in range(amount):
         word = words[i]
         print(f"{word}" + (" " * (spacing - len(word))), end="")
         count += spacing
@@ -203,7 +204,7 @@ def print_puzzle(grid, size, words):
     return
 
 
-def write_puzzle(grid, size, words, txtFile):
+def write_puzzle(grid, size, words, amount, txtFile):
 
     # Write grid to text file
     for i in range(size):
@@ -215,7 +216,7 @@ def write_puzzle(grid, size, words, txtFile):
     txtFile.write("\n")
     spacing = 15
     count = 0
-    for i in range(len(words)):
+    for i in range(amount):
         word = words[i]
         txtFile.write(f"{word}" + (" " * (spacing - len(word))))
         count += spacing
