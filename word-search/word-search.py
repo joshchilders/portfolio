@@ -56,7 +56,7 @@ def main():
     # Print puzzle to terminal
     print_puzzle(grid, size, words, amount)
 
-    # Write puzzle to text file and open it in text editor
+    # Write puzzle to text file
     write_puzzle(grid, size, words, amount, txtFile)
 
 
@@ -183,6 +183,7 @@ def write_answer_key(grid, size):
         for j in range(size):
             ansFile.write(f"{grid[i][j]}  ")
         ansFile.write("\n")
+    
     ansFile.close()
 
     return
@@ -244,6 +245,7 @@ def write_puzzle(grid, size, words, amount, txtFile):
             count = 0
     
     txtFile.close()
+
     return
 
 
