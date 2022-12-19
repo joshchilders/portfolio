@@ -3,12 +3,12 @@ import random
 
 
 # Words to find
-THE_OFFICE = ["MICHAEL", "DWIGHT", "JIM", "PAM", "ANDY", "STANLEY", "PHYLLIS", "ANGELA", "OSCAR", "KEVIN", "MEREDITH", "CREED", "RYAN", "KELLY", "TOBY", "DARRYL",
-                "HOLLY", "JAN", "ROY", "DAVID", "CHARLES", "GABE", "ERIN", "MOSE", "PETE", "CLARK", "BOBVANCE", "VIKRAM", "SCARN", "PAPER", "DUNDER", "MIFFLIN"]
-HARRY_POTTER = ["HARRY", "RON", "HERMIONE", "HAGRID", "DRACO", "NEVILLE", "DUMBLEDORE", "MCGONAGALL", "SEVERUS", "VOLDEMORT", "SIRIUS", "HOGWARTS", "GRYFFINDOR", "HUFFLEPUFF", "RAVENCLAW", "SLYTHERIN",
-                "PADFOOT", "GINNY", "DOBBY", "TRELAWNEY", "FLITWICK", "UMBRIDGE", "SPROUT", "POMFREY", "DOBBY", "LUNA", "MYRTLE", "FILCH", "SNITCH", "WIZARD", "WITCH", "MAGIC"]
-LOTR = ["FRODO", "SAMWISE", "BILBO", "MERRY", "PIPPIN", "GANDALF", "ARAGORN", "LEGOLAS", "GIMLI", "BOROMIR", "FARAMIR", "GOLLUM", "SMEAGOL", "SAURON", "SARUMAN", "STRIDER",
-        "MIDDLEEARTH", "SHIRE", "MORDOR", "RIVENDELL", "GONDOR", "ROHAN", "MORIA", "FANGORN", "HUMAN", "HOBBIT", "ELF", "DWARF", "ORC", "GOBLIN", "WIZARD", "RING"]
+THEME_WORD_LIST  = {"office": ["MICHAEL", "DWIGHT", "JIM", "PAM", "ANDY", "STANLEY", "PHYLLIS", "ANGELA", "OSCAR", "KEVIN", "MEREDITH", "CREED", "RYAN", "KELLY", "TOBY", "DARRYL",
+                    "HOLLY", "JAN", "ROY", "DAVID", "CHARLES", "GABE", "ERIN", "MOSE", "PETE", "CLARK", "BOBVANCE", "VIKRAM", "SCARN", "PAPER", "DUNDER", "MIFFLIN"],
+                    "potter": ["HARRY", "RON", "HERMIONE", "HAGRID", "DRACO", "NEVILLE", "DUMBLEDORE", "MCGONAGALL", "SEVERUS", "VOLDEMORT", "SIRIUS", "HOGWARTS", "GRYFFINDOR", "HUFFLEPUFF", "RAVENCLAW", "SLYTHERIN",
+                    "PADFOOT", "GINNY", "DOBBY", "TRELAWNEY", "FLITWICK", "UMBRIDGE", "SPROUT", "POMFREY", "DOBBY", "LUNA", "MYRTLE", "FILCH", "SNITCH", "WIZARD", "WITCH", "MAGIC"],
+                    "lotr": ["FRODO", "SAMWISE", "BILBO", "MERRY", "PIPPIN", "GANDALF", "ARAGORN", "LEGOLAS", "GIMLI", "BOROMIR", "FARAMIR", "GOLLUM", "SMEAGOL", "SAURON", "SARUMAN", "STRIDER",
+                    "MIDDLEEARTH", "SHIRE", "MORDOR", "RIVENDELL", "GONDOR", "ROHAN", "MORIA", "FANGORN", "HUMAN", "HOBBIT", "ELF", "DWARF", "ORC", "GOBLIN", "WIZARD", "RING"]}
 
 # Grid size settings
 DIFFICULTY_GRID_SIZE = {"easy": 20, "medium": 30, "hard": 40}
@@ -18,15 +18,23 @@ def main():
 
     # Check command-line arguments
     if len(sys.argv) < 2 or len(sys.argv) > 3:
-        sys.exit("Usage: python word-search.py theme\n        -> themes: office, potter, lotr\n           - OR -\n       python word-search.py theme filename\n        -> writes puzzle to .txt file instead of terminal")
+        sys.exit("Usage: 1. python word-search.py theme [filename]\n          -> available themes: office, potter, lotr")
     else:
         theme = sys.argv[1].lower()
-        if theme == "office" or theme == "parks" or theme == "potter" or theme == "lotr":
-            words = get_word_list(theme)
-        else:
+        validTheme = False
+        for key in THEME_WORD_LIST:
+            if theme == key:
+                validTheme = True
+                words = get_word_list(theme)
+                break
+        if validTheme == False:
             sys.exit("Available themes: office, potter, lotr")
+        # Open text file
         if len(sys.argv) == 3:
-            txtFile = open(f"{sys.argv[2]}.txt", "w")
+            fileName = sys.argv[2]
+        else:
+            fileName = "word-search"
+        txtFile = open(f"{fileName}.txt", "w")
     
     # Get difficulty from user
     difficulty = get_difficulty()
@@ -39,29 +47,25 @@ def main():
     # Hide words inside grid
     grid = hide_words(grid, size, words, amount)
 
+    # Write answer key (before randomizing grid)
+    write_answer_key(grid, size)
+
     # Randomize all other letters in grid
     grid = randomize_grid(grid, size)
 
-    # Either print puzzle in terminal or write to text file, depending on command-line arguments
-    if len(sys.argv) != 3:
-        print_puzzle(grid, size, words, amount)
-    else:
-        write_puzzle(grid, size, words, amount, txtFile)
+    # Print puzzle to terminal
+    print_puzzle(grid, size, words, amount)
+
+    # Write puzzle to text file and open it in text editor
+    write_puzzle(grid, size, words, amount, txtFile)
 
 
 def get_word_list(theme):
 
     words = []
 
-    if theme == "office":
-        for i in range(len(THE_OFFICE)):
-            words.append(THE_OFFICE[i])
-    elif theme == "potter":
-        for i in range(len(HARRY_POTTER)):
-            words.append(HARRY_POTTER[i])
-    elif theme == "lotr":
-        for i in range(len(LOTR)):
-            words.append(LOTR[i])
+    for i in range(len(THEME_WORD_LIST[theme])):
+        words.append(THEME_WORD_LIST[theme][i])
 
     return words
 
@@ -167,6 +171,21 @@ def hide_words(grid, size, words, amount):
         i += 1
 
     return grid
+
+
+def write_answer_key(grid, size):
+
+    # Open answer key file
+    ansFile = open("answer-key.txt", "w")
+
+    # Write grid to text file
+    for i in range(size):
+        for j in range(size):
+            ansFile.write(f"{grid[i][j]}  ")
+        ansFile.write("\n")
+    ansFile.close()
+
+    return
 
 
 def randomize_grid(grid, size):
