@@ -10,21 +10,41 @@ for key in KEY:
 
 def main():
 
-    if len(sys.argv) != 2:
-        sys.exit("Usage: encryption.py encrypt\n       encryption.py decrypt")
+    # Error message for incorrect command-line arguments
+    errorMsg = "Usage: encryption.py encrypt [filename.txt]\n       encryption.py decrypt [filename.txt]"
 
+    # Check amount of command-line arguments
+    if len(sys.argv) < 2 or len(sys.argv) > 3:
+        sys.exit(errorMsg)
+    
+    # Check first argument
     arg = sys.argv[1].lower()
     if arg != "encrypt" and arg != "e" and arg != "decrypt" and arg != "d":
-        sys.exit("Usage: encryption.py encrypt\n       encryption.py decrypt")
+        sys.exit(errorMsg)
     
-    text = input("Text: ")
-
-    if arg == "encrypt" or arg == "e":
-        text = encrypt(text)
+    # If a text file was specified in command-line arguments, read and write to that file
+    if len(sys.argv) == 3:
+        with open(sys.argv[2], "r") as file:
+            text = file.read()
+        if arg == "encrypt" or arg == "e":
+            text = encrypt(text)
+        else:
+            text = decrypt(text)
+        with open(sys.argv[2], "w") as file:
+                file.write(text)
+    # If a text file was not specified, prompt user for text and output encrypted/decrypted text to terminal
     else:
-        text = decrypt(text)
+        text = input("Text: ")
+        if arg == "encrypt" or arg == "e":
+            text = encrypt(text)
+            print(f"Encrypted text: {text}")
+
+        else:
+            text = decrypt(text)
+            print(f"Decrypted text: {text}")
 
 
+# Encrypt text
 def encrypt(text):
 
     new_text = ""
@@ -38,11 +58,10 @@ def encrypt(text):
         else:
             new_text += letter
 
-    print(f"Encrypted text: {new_text}")
-
-    return
+    return new_text
 
 
+# Decrypt text
 def decrypt(text):
 
     new_text = ""
@@ -56,9 +75,7 @@ def decrypt(text):
         else:
             new_text += letter
 
-    print(f"Decrypted text: {new_text}")
-
-    return
+    return new_text
 
 
 main()
